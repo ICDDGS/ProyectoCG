@@ -12,6 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>	//camera y model
 #include <glm/gtc/type_ptr.hpp>
 #include <time.h>
+#include <irrKlang.h> //Sonido
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -43,8 +44,8 @@ GLFWmonitor *monitors;
 void getResolution(void);
 
 // camera
-Camera camera(glm::vec3(0.0f, 10.0f, 90.0f));
-float MovementSpeed = 0.1f;
+Camera camera(glm::vec3(0.0f, 15.0f, 400.0f));//Posicion incial de la camara 
+float MovementSpeed = 0.5f;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -61,45 +62,53 @@ glm::vec3 lightDirection(0.0f, -1.0f, -1.0f); //Direccion de la fuente de luz
 glm::vec3 myposition02(80.0f, 4.0f, 0.0f);
 glm::vec3 myColor01(0.0f, 0.0f, 1.0f);
 
-//Variable global
-float myVariable = 0.0f;
-
-
-// posiciones
-float	movAuto_x = 0.0f,
-		movAuto_y =-1.0f,
-		movAuto_z = 0.0f,
-		orienta = 0.0f;
-bool	animacion = false;
-
+//-------------------------------------------------------------------------------------
+// Daclaracion de variables que se usaran para las animaciones
+// ------------------------------------------------------------------------------------
 //Luz ciclo de dia y noche
-float luzx = 0.8f, luzy = 0.8f, luzz = 0.8f, noche = 0.0f;
+float luzx = 0.5f, luzy = 0.8f, luzz = 0.8f, noche = 0.0f;
 int dia = 0;
 
+//Sonic
+float posxs = 0.0f,
+poszs = 0.0f,
+posys = 0.0f,
+rotsonic =0.0f,
+incsonic = 0.0f;
+int animsonic = 0;
 
-//Keyframes (Manipulación y dibujo)
-float	posX = 0.0f,
-		posY = 0.0f,
-		posZ = 0.0f,
-		rotRodIzq = 0.0f,
-		giroMonito = 0.0f,
-		movBrazoDer =0.0f,
-		movBrzoIzq=0.0f,
-		rotRodDer =0.0f,
-		rotcabez=0.0f;
-//calculo del incremento en la posicion
-float	incX = 0.0f,
-		incY = 0.0f,
-		incZ = 0.0f,
-		rotInc = 0.0f,
-		giroMonitoInc = 0.0f,
-		incBrzoDer=0.0f,
-		incBrazoIzq=0.0f,
-		incrotRodDer=0.0f,
-		incrotCabeza=0.0f;
+//Rings
+float rotring = 0.0f;
 
-//carro avanza
-int avanza = 0;
+//Freddy
+float rotBrazoF = 0.0f;
+int animFreddy = 0;
+
+//Chica
+float rotBrazoC = 0.0f, 
+	rotpanque = 0.0f,
+	poszpanque = 18.5f;
+int animChica = 0;
+
+//eggman
+float eggx = 0.0f,
+	eggy = 0.0f,
+	eggz = 0.0f,
+	rotegg = 0.0f,
+	egginc =0.0f;
+int animegg=0;
+
+//Cheff
+float rotcheff=0.0f,
+	poszsar = 13.5f,
+	rotsarten=0.0f,
+	carnex =0.0f,
+	carney = 0.0f,
+	carnez =0.0f,
+	tempcarne = 0.0f,
+	carneinc =1.5f;
+int animcheff = 0;
+
 
 #define MAX_FRAMES 20  //cantidad de cuadros clave que se pueden guardar
 int i_max_steps = 60;
@@ -107,16 +116,7 @@ int i_curr_steps = 0;
 typedef struct _frame
 {
 	//Variables para GUARDAR Key Frames
-	float posX;		//Variable para PosicionX
-	float posY;		//Variable para PosicionY
-	float posZ;		//Variable para PosicionZ
-	float rotRodIzq;
-	float giroMonito;
-	float movBrazoDer;
-	float movBrzoIzq;
-	float rotRodDer;
-	float rotcabez;
-
+	
 }FRAME; //Estructura Frame
 
 FRAME KeyFrame[MAX_FRAMES];
@@ -131,18 +131,7 @@ void saveFrame(void)
 	//Guarda como esta el personaje dentro de la estrucutura
 	std::cout << "Frame Index = " << FrameIndex << std::endl;
 
-	KeyFrame[FrameIndex].posX = posX;
-	KeyFrame[FrameIndex].posY = posY;
-	KeyFrame[FrameIndex].posZ = posZ;
-
-	KeyFrame[FrameIndex].rotRodIzq = rotRodIzq;
-	KeyFrame[FrameIndex].giroMonito = giroMonito;
-
-	KeyFrame[FrameIndex].movBrazoDer = movBrazoDer;
-	KeyFrame[FrameIndex].movBrzoIzq = movBrzoIzq;
-	KeyFrame[FrameIndex].rotRodDer = rotRodDer;
-	KeyFrame[FrameIndex].rotcabez = rotcabez;
-
+	
 
 	FrameIndex++;
 }
@@ -150,38 +139,26 @@ void saveFrame(void)
 //Punto de incio para reproducir
 void resetElements(void)
 {
-	posX = KeyFrame[0].posX;
-	posY = KeyFrame[0].posY;
-	posZ = KeyFrame[0].posZ;
 
-	rotRodIzq = KeyFrame[0].rotRodIzq;
-	giroMonito = KeyFrame[0].giroMonito;
-	movBrazoDer = KeyFrame[0].movBrazoDer;
-	movBrzoIzq = KeyFrame[0].movBrzoIzq;
-	rotRodDer = KeyFrame[0].rotRodDer;
-	rotcabez = KeyFrame[0].rotcabez;
 }
 
 void interpolation(void)
 {
-	incX = (KeyFrame[playIndex + 1].posX - KeyFrame[playIndex].posX) / i_max_steps;
-	incY = (KeyFrame[playIndex + 1].posY - KeyFrame[playIndex].posY) / i_max_steps;
-	incZ = (KeyFrame[playIndex + 1].posZ - KeyFrame[playIndex].posZ) / i_max_steps;
 
-	rotInc = (KeyFrame[playIndex + 1].rotRodIzq - KeyFrame[playIndex].rotRodIzq) / i_max_steps;
-	giroMonitoInc = (KeyFrame[playIndex + 1].giroMonito - KeyFrame[playIndex].giroMonito) / i_max_steps;
-	incBrzoDer = (KeyFrame[playIndex + 1].movBrazoDer - KeyFrame[playIndex].movBrazoDer) / i_max_steps; //i_max_steps cantidad maxima de cuadros
-	incBrazoIzq = (KeyFrame[playIndex + 1].movBrzoIzq - KeyFrame[playIndex].movBrzoIzq) / i_max_steps;
-	incrotRodDer = (KeyFrame[playIndex + 1].rotRodDer - KeyFrame[playIndex].rotRodDer) / i_max_steps;
-	incrotCabeza = (KeyFrame[playIndex + 1].rotcabez - KeyFrame[playIndex].rotcabez) / i_max_steps;
 }
 
-
+//-----------------------------------------------------------------------
+//Animaciones
+//-------------------------------------------------------------------
 
 void animate(void)
 {
+	//animacion para el ciclo de dia y de noche
+	/* El ciclo de dia y de noche sera aproximadamente de 1 min, en le caso 0 es para 
+	hacer de dia, el caso 1 es para oscurecer 	y el caso 2 no cambia la iluminacion 
+	pero si mantiene los valores ´para simularla */
 	switch (dia) {
-		case 0:
+		case 0: 
 			luzx += 0.0005f;
 			luzy += 0.0005;
 			luzz += 0.0005;
@@ -203,12 +180,8 @@ void animate(void)
 			}
 		
 	}
-	
-
-	
-	myposition02.x = 200.0f * cos(myVariable);
-	myposition02.z = 200.0f * sin(myVariable);
-	myVariable += 0.07f;
+	//--------------------------------------------------------------------------------
+	//Animacion por keyframes
 	if (play)
 	{
 		if (i_curr_steps >= i_max_steps) //end of animation between frames?
@@ -231,55 +204,235 @@ void animate(void)
 		else
 		{
 			//Draw animation
-			posX += incX;
-			posY += incY;
-			posZ += incZ;
-
-			rotRodIzq += rotInc;
-			giroMonito += giroMonitoInc;
-
-			movBrazoDer += incBrzoDer;
-			movBrzoIzq += incBrazoIzq;
-			rotRodDer += incrotRodDer;
-			rotcabez += incrotCabeza;
 
 			i_curr_steps++;
 		}
 	}
+	//--------------------------------------------------------------------------------
+	//Animacion Sonic
+	/*En esta animacion se usa a sonic hecho bolita y tiene que recorrer una parte del mapa, en le 
+	caso 0 sonic avanza al incio de la rampa, en le caso 1 sonic recorre la rampa circular, en el
+	caso 2 sonic continua el camino restante, despues en los casoso 3,4 y 5realiza de forma 
+	inversa el recorrido, tambien se le dio una rotacion, para simular que esta girando mientras avanaza*/
+	rotsonic += 1.5f;
+	switch (animsonic) {
+	case 0:
+		posys += 0.6f;
+			if(posys >= 150)
+				animsonic = 1;
+		break;
+	case 1:
+		//Escala * 3 
+		poszs = 95 + ( -95 *cos(incsonic));//altura circ 
+		posys =  150 + ( 95 *sin(incsonic));//largo circ 
+		incsonic += 0.01;
 
-	//Vehículo
-	if (animacion && avanza==0)
-	{
-		movAuto_z += 3.0f;
-		if (movAuto_z >= 100)
-			avanza = 1;
-	}
-	else {
-		if (animacion && avanza==1) {
-			movAuto_z -= 3.0f;
-			if (movAuto_z <= 0) {
-				avanza = 2;
-			}	
+		posxs -= 0.1;
+		if (incsonic >= 6.5) { //3
+			//incsonic = 6.5f;	//1.5
+			animsonic = 2;
 		}
-		else {
-			if (animacion && avanza == 2) {
-				movAuto_y += 3.0f;
-				if (movAuto_y >= 100) {
-					avanza = 3;
-				}
-			}
-			else {
-				if (animacion && avanza == 3) {
-					movAuto_y -= 3.0f;
-					if (movAuto_y <= 0) {
-						avanza = 0;
-						animacion = false;
-					}
-				}
-			}
+		if (posxs <= -66) {
+			posxs = -66.0f;
+		}
+		break;
+	case 2:
+		posys += 0.6f;
+		if (posys >= 350)
+			//posys = 350;
+			animsonic = 3;
+		break;
 
+	case 3:
+		posys -= 0.6f;
+		if (posys <= 150)
+			animsonic = 4;
+		break;
+	case 4:
+		poszs = 95 + (-95 * cos(incsonic));//altura circ 
+		posys = 150 + (95 * sin(incsonic));//largo circ 
+		incsonic -= 0.01;
+
+		posxs += 0.1;
+		if (incsonic <= 0.0) { 
+			incsonic = 0.0f;	//1.5
+			animsonic = 5;
 		}
+		break;
+	case 5:
+		posys -= 0.6f;
+		if (posys <= 0) {
+			posys = 0;
+			animsonic = 0;
+		}
+			
+		break;
 	}
+	//--------------------------------------------------------------------------------
+	//Animacion Ring
+	/*Esta animacion se le da giro al ring*/
+	rotring += 2.5;
+	if (rotring >= 180)
+		rotring = 0.0f;
+	//--------------------------------------------------------------------------------
+	//Animacion Saludo Freddy
+	/*Se busca darle una animacion de saludo, para ello se le da animacion al brazo realiando 
+	rotaciones en el brazo, en el caso 0 el brazosube por medio de una rotacion y en el 
+	caso 1 el brazo deciende por emdio de otra rotacion*/
+	switch (animFreddy) {
+	case 0:
+		rotBrazoF += 1.0f;
+		if (rotBrazoF >= 45)
+			animFreddy = 1;
+		break;
+	case 1:
+		
+		rotBrazoF -= 1.0f;
+		if (rotBrazoF <= -45)
+			animFreddy = 0;
+		break;
+	}
+	//--------------------------------------------------------------------------------
+	//Animacion Eggman
+	/*En este caso se busco darle la animacon de eggman elevandose al cielo, y despues
+	de hacerlo que de vueltas a lo largo del edificio, el caso 1, 2, 3  y 4 se encargan
+	de posiconarlo en el lugar de despegue, en el caso 5 se le da la animacion de 
+	despegue y en el caso 6 se le da la animacion de dar vueltas al edificio*/
+	switch (animegg) {
+		case 0:
+			eggy += 0.7f;
+			if (eggy >= 70)
+				animegg = 1;
+			break;
+		case 1:
+			rotegg += 0.7f;
+
+			if (rotegg >= 90)
+				animegg = 2;
+			break;
+		case 2:
+			eggx += 0.7f;
+			if (eggx >= 200)
+				animegg = 3;
+		break;
+		case 3:
+			rotegg -= 0.7f;
+
+			if (rotegg <= 0)
+				animegg = 4;
+			break;
+		case 4:
+			eggy -= 0.7f;
+			if (eggy <= 40)
+				animegg = 5;
+			break;
+		case 5:
+			eggz += 0.3f;
+			eggx = 200 * cos(egginc);
+			eggz += 0.3f;
+			eggy = 200 * sin(egginc);
+			eggz += 0.3f;
+			egginc += 0.01f;
+			rotegg -= 0.4f;
+			if (eggz >= 100)
+				animegg = 6;
+			break;
+		case 6:
+			rotegg -= 0.46f;
+			eggx = 200 * cos(egginc);
+			eggy = 200 * sin(egginc);
+			egginc += 0.008f;
+			break;
+	}
+	//--------------------------------------------------------------------------------
+	//Animacio Chica
+	/*En esta animacion se busca qeu chica lanze un panque al aire y que de vueltas
+	a lo largo del recorrido, en el caso 0 el panque y el brazo se mueven al mismo 
+	tiempo, y empieza la rotacion del panque, en le caso 1 el panque se eleva y rota
+	y en el caso 2 	el pnque deciende con el brazo de chica mientras termina su 
+	rotacion*/
+	switch (animChica) {
+	case 0:
+		rotBrazoC -= 0.3f;
+		poszpanque += 0.1f;
+		rotpanque += 2.7;
+		if (rotBrazoC <= -20)
+			animChica = 1;
+		break;
+	case 1:
+		poszpanque += 0.3f;
+		if (poszpanque >= 25)
+			animChica = 2;
+		break;
+	case 2:
+		rotBrazoC += 0.3f;
+		rotpanque += 2.7;
+		poszpanque -= 0.105f;
+		if (rotpanque >= 360)
+			rotpanque = 0;
+		if (rotBrazoC >= 0)
+			animChica = 0;
+		break;
+	}
+	//--------------------------------------------------------------------------------
+	//Animacion Cheff
+	/*La animacion consiste en que el cheff lanza el sarten al aire con la carne,
+	y la misma vuela hsta un plato que hay sobre la mesa, en el caso 0 el cheff 
+	lanza el sarten por medio de una rotacion en sus brazos, el sarten aumenta su
+	altura mientras tiene una pequeña rotacion, la carne tambien aumenta su altura
+	mientras realiza un trayectoria curva, en el caso 1 se hace una pequeña pausa
+	en el caso 2 y 3 cambia a otra rotacion y continua la animacion para llegar 
+	al plato, en el caso 4 la carne se da una pequeña pausa a la carn en el 
+	plato antes de repetir la animacion*/
+	switch(animcheff){
+	case 0:
+		rotcheff += 0.3f;
+		poszsar += 0.1;
+		rotsarten += 0.25;
+		carnez = -15.0 * cos(carneinc);
+		carney = 12.0 * sin(carneinc);
+		carneinc += 0.015;
+		if (carneinc >= 3) { //3
+			carneinc = 3.0f;	//1.5
+		}
+		if (rotcheff >= 30)
+			animcheff = 1;
+		break;
+	case 1:
+		carneinc += 0.04;
+		if (carneinc >= 3.1) {
+			animcheff = 2;
+		}
+		break;
+	case 2:
+		carnez = -15.0 * cos(carneinc);
+		carney = 70 * sin(carneinc);
+		carneinc += 0.005;
+		rotcheff -= 0.3f;
+		rotsarten -= 0.25;
+		poszsar -= 0.1;
+
+		if (rotcheff <= 0) {
+			animcheff = 3;
+		}		
+		break;
+	case 3:
+		carnez = -15.0 * cos(carneinc);
+		carney = 70 * sin(carneinc);
+		carneinc += 0.008;
+		if (carneinc >= 4.85) {
+			animcheff = 4;
+		}
+		break;
+	case 4:
+		carneinc += 0.01;
+		if (carneinc >= 7) {
+			carneinc = 1.5f;
+			animcheff = 0;
+		}
+		break;
+	}
+
 }
 
 void getResolution()
@@ -296,17 +449,15 @@ int main()
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
-	/*glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);*/
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
+	// --------------------
 	// glfw window creation
 	// --------------------
-	// --------------------
+	
 	monitors = glfwGetPrimaryMonitor();
 	getResolution();
 
@@ -334,9 +485,21 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+	//-------------------------------------------------------------------------
+	//Sonido de fondo
+	//---------------------------------------------------------------------
+	irrklang::ISoundEngine* engine = irrklang::createIrrKlangDevice();
+	
+	if (!engine) {
+		printf("Could not startup engine ");
+		return 0; //eror inciando engine
+	}
 
+	engine->play2D("fnaf.mp3", true);
+	engine->setSoundVolume(0.4f);
+	//--------------------------------
 	// configure global opengl state
-	// -----------------------------
+	// ------------------------------
 	glEnable(GL_DEPTH_TEST);
 
 	// build and compile shaders
@@ -347,12 +510,12 @@ int main()
 
 	vector<std::string> faces
 	{
-		"resources/skybox/right.jpg",
-		"resources/skybox/left.jpg",
-		"resources/skybox/top.jpg",
-		"resources/skybox/bottom.jpg",
-		"resources/skybox/front.jpg",
-		"resources/skybox/back.jpg"
+		"resources/skybox/rightcity.jpg", 
+		"resources/skybox/leftcity.jpg",
+		"resources/skybox/topcity.jpg",
+		"resources/skybox/bottomcity.jpg",
+		"resources/skybox/frontcity.jpg", 
+		"resources/skybox/backcity.jpg" 
 	};
 
 	Skybox skybox = Skybox(faces);
@@ -366,15 +529,14 @@ int main()
 	// -----------
 	Model piso("resources/objects/ProyCG/piso/piso.obj");
 	
-	
-	//Modelos Proyecto---------------------------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------
+	//Modelos Proyecto
+	//-------------------------------------------------------------------------------
+	//Elementos sin animacion
+	//--------------------------------------------------------------------------------
 	Model restaurante("resources/objects/ProyCG/restaurante/rest.obj");
 	Model mesa("resources/objects/ProyCG/mesa/mesa.obj");
 	Model silla("resources/objects/ProyCG/silla/silla.obj");
-	Model sonic("resources/objects/ProyCG/sonic/Sonic.obj");
-	Model bis("resources/objects/ProyCG/sonic/bis.obj");
-	Model bds("resources/objects/ProyCG/sonic/bds.obj");
-	Model ring("resources/objects/ProyCG/ring/ring.obj");
 	Model pastel("resources/objects/ProyCG/pastel/pastel.obj");
 	Model micro("resources/objects/ProyCG/microfono/micro.obj");
 	Model globor("resources/objects/ProyCG/globos/globor.obj");
@@ -387,55 +549,38 @@ int main()
 	Model Arcade1("resources/objects/ProyCG/arcade/a1.obj");
 	Model Arcade2("resources/objects/ProyCG/arcade/a2.obj");
 	Model Arcade3("resources/objects/ProyCG/arcade/a3.obj");
-
-
+	//--------------------------------------------------------------------------------
+	//Modelos con animacion
+	//--------------------------------------------------------------------------------
+	//Sonic
+	Model mapa("resources/objects/ProyCG/sonic/mapa.obj");
+	Model sonic("resources/objects/ProyCG/sonic/sonic.obj");
+	//ring
+	Model ring("resources/objects/ProyCG/ring/ring.obj");
+	//EggMAn
+	Model Eggman("resources/objects/ProyCG/Eggman/Eggman.obj");
+	//Freddy
+	Model Freddy("resources/objects/ProyCG/Freddy/Freddy.obj");
+	Model FreddyBrazo("resources/objects/ProyCG/Freddy/FreddyBrazo.obj");
+	//Chica
+	Model Chica("resources/objects/ProyCG/Chica/chica.obj");
+	Model ChicaBrazo("resources/objects/ProyCG/Chica/chicabrazo.obj");
+	Model panque("resources/objects/ProyCG/Chica/panque.obj");
+	//Cheff
+	Model cheff("resources/objects/ProyCG/cocinero/cheff.obj");
+	Model cheffbd("resources/objects/ProyCG/cocinero/cheffbd.obj");
+	Model cheffbi("resources/objects/ProyCG/cocinero/cheffbi.obj");
+	Model sarten("resources/objects/ProyCG/cocinero/sarten.obj");
+	Model carne("resources/objects/ProyCG/cocinero/carne.obj");
+	Model plato("resources/objects/ProyCG/cocinero/plato.obj");
 
 
 	//Inicialización de KeyFrames
 	for (int i = 0; i < MAX_FRAMES; i++)
 	{
-		KeyFrame[i].posX = 0;
-		KeyFrame[i].posY = 0;
-		KeyFrame[i].posZ = 0;
-		KeyFrame[i].rotRodIzq = 0;
-		KeyFrame[i].giroMonito = 0;
-		KeyFrame[i].movBrazoDer = 0;
-		KeyFrame[i].movBrzoIzq = 0;
-		KeyFrame[i].rotRodDer = 0;
-		KeyFrame[i].rotcabez = 0;
+
 	}
 
-	//Cuadros Clave
-	/*KeyFrame[0].posX = 0.0f;
-	KeyFrame[0].posY = 0.0f;
-	KeyFrame[0].posZ = 0.0f;
-	KeyFrame[0].rotRodIzq = 0.0f;
-	KeyFrame[0].giroMonito = 0.0f;
-	KeyFrame[0].movBrazoDer = 0.0f;
-
-	KeyFrame[1].posX = 30.0f;
-	KeyFrame[1].posY = 0.0f;
-	KeyFrame[1].posZ = 0.0f;
-	KeyFrame[1].rotRodIzq = -45.0f;
-	KeyFrame[1].giroMonito = 90.0f;
-	KeyFrame[1].movBrazoDer = -45.0f;
-
-	KeyFrame[2].posX = 30.0f;
-	KeyFrame[2].posY = 50.0f;
-	KeyFrame[2].posZ = 0.0f;
-	KeyFrame[2].rotRodIzq = 0.0f;
-	KeyFrame[2].giroMonito = 0.0f;
-	KeyFrame[2].movBrazoDer = 90.0f;
-
-	KeyFrame[3].posX = 30.0f;
-	KeyFrame[3].posY = 0.0f;
-	KeyFrame[3].posZ = 0.0f;
-	KeyFrame[3].rotRodIzq = 0.0f;
-	KeyFrame[3].giroMonito = 0.0f;
-	KeyFrame[3].movBrazoDer = 0.0f;*/
-
-	// draw in wireframe
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// render loop
 	// -----------
@@ -526,13 +671,13 @@ int main()
 		animShader.setMat4("projection", projection);
 		animShader.setMat4("view", view);
 
-		animShader.setVec3("material.specular", glm::vec3(0.5f));
-		animShader.setFloat("material.shininess", 32.0f);
-		animShader.setVec3("light.ambient", ambientColor);
-		animShader.setVec3("light.diffuse", diffuseColor);
-		animShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-		animShader.setVec3("light.direction", lightDirection);
-		animShader.setVec3("viewPos", camera.Position);
+		//animShader.setVec3("material.specular", glm::vec3(0.5f));
+		//animShader.setFloat("material.shininess", 32.0f);
+		//animShader.setVec3("light.ambient", ambientColor);
+		//animShader.setVec3("light.diffuse", diffuseColor);
+		//animShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		//animShader.setVec3("light.direction", lightDirection);
+		//animShader.setVec3("viewPos", camera.Position);
 
 
 		// -------------------------------------------------------------------------------------------------------------------------
@@ -543,7 +688,6 @@ int main()
 		staticShader.setMat4("view", view);
 
 
-		// -------------------------------------------------------------------------------------------------------------------------
 		// Restaurante
 		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.7f, -100.0f));
@@ -553,6 +697,7 @@ int main()
 		restaurante.Draw(staticShader);
 
 		//Mesas
+		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(-30.0f, 0.0f, -170.0f));
 		model = glm::scale(model, glm::vec3(6.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -577,33 +722,17 @@ int main()
 		staticShader.setMat4("model", model);
 		mesa.Draw(staticShader);
 
-		//Pasteles
+		//Pastel
+		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(-30.0f, 11.0f, -170.0f));
 		model = glm::scale(model, glm::vec3(2.0));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader.setMat4("model", model);
 		pastel.Draw(staticShader);
 
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(30.0f, 11.0f, -170.0f));
-		model = glm::scale(model, glm::vec3(2.0));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader.setMat4("model", model);
-		pastel.Draw(staticShader);
-
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(-30.0f, 11.0f, -100.0f));
-		model = glm::scale(model, glm::vec3(2.0));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader.setMat4("model", model);
-		pastel.Draw(staticShader);
-
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(30.0f, 11.0f, -100.0f));
-		model = glm::scale(model, glm::vec3(2.0));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader.setMat4("model", model);
-		pastel.Draw(staticShader);
-
 		//Sillas
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(15.0f, 0.0f, 0.0f));
+		// -------------------------------------------------------------------------------------------------------------------------
+		/*model = glm::translate(glm::mat4(1.0f), glm::vec3(15.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(30.0));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader.setMat4("model", model);
@@ -619,37 +748,62 @@ int main()
 		model = glm::scale(model, glm::vec3(30.0));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader.setMat4("model", model);
-		silla.Draw(staticShader);
+		silla.Draw(staticShader);*/
 
-		//Cuerpo sonic
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(15.0f, 0.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(30.0));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//Sonic
+		// -------------------------------------------------------------------------------------------------------------------------
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(300.0f, 5.0f, 150.0f));
+		model = glm::scale(model, glm::vec3(8.0));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		mapa.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(posxs + 340.0f, poszs + 11.0f, posys)); //(340,10,0)
+		model = glm::scale(model, glm::vec3(3.0));
+		model = glm::rotate(model, glm::radians(rotsonic), glm::vec3(1.0f, 0.0f, 0.0f));
 		staticShader.setMat4("model", model);
 		sonic.Draw(staticShader);
 
-		//Brazo Izquierdo Sonic
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(15.0f, 0.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(30.0));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader.setMat4("model", model);
-		bis.Draw(staticShader);
-
-		//Brazo Derecho Sonic
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(15.0f, 0.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(30.0));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader.setMat4("model", model);
-		bds.Draw(staticShader);
-
 		//Rings
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 10.0f, 20.0f));
-		model = glm::scale(model, glm::vec3(5.0));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		// -------------------------------------------------------------------------------------------------------------------------
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(340.0f, 10.0f, 150.0f));
+		model = glm::scale(model, glm::vec3(4.0));
+		model = glm::rotate(model, glm::radians(rotring), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		ring.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(340.0f, 10.0f, 100.0f));
+		model = glm::scale(model, glm::vec3(4.0));
+		model = glm::rotate(model, glm::radians(rotring), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		ring.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(340.0f, 10.0f, 50.0f));
+		model = glm::scale(model, glm::vec3(4.0));
+		model = glm::rotate(model, glm::radians(rotring), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		ring.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(250.0f, 10.0f, 150.0f));
+		model = glm::scale(model, glm::vec3(4.0));
+		model = glm::rotate(model, glm::radians(rotring), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		ring.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(250.0f, 10.0f, 200.0f));
+		model = glm::scale(model, glm::vec3(4.0));
+		model = glm::rotate(model, glm::radians(rotring), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		ring.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(250.0f, 10.0f, 250.0f));
+		model = glm::scale(model, glm::vec3(4.0));
+		model = glm::rotate(model, glm::radians(rotring), glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader.setMat4("model", model);
 		ring.Draw(staticShader);
 
 		//Microfono
+		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 7.5f, -110.0f));
 		model = glm::scale(model, glm::vec3(150.0));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -657,7 +811,8 @@ int main()
 		micro.Draw(staticShader);
 
 		//Globos
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 25.0f, 40.0f));
+		// -------------------------------------------------------------------------------------------------------------------------
+		/*model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 25.0f, 40.0f));
 		model = glm::scale(model, glm::vec3(0.25));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader.setMat4("model", model);
@@ -679,9 +834,10 @@ int main()
 		model = glm::scale(model, glm::vec3(0.25));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader.setMat4("model", model);
-		globop.Draw(staticShader);
+		globop.Draw(staticShader);*/
 
 		//Cocina
+		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(-165.0f, 0.0f, 10.0f));
 		model = glm::scale(model, glm::vec3(13.0f));
 		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -694,7 +850,14 @@ int main()
 		staticShader.setMat4("model", model);
 		cocina.Draw(staticShader);
 
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-180.0f, 0.0f, -70.0f));
+		model = glm::scale(model, glm::vec3(6.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		mesa.Draw(staticShader);
+
 		//Mesa bar
+		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(-55.0f, 0.0f, -10.0f));
 		model = glm::scale(model, glm::vec3(2.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -702,6 +865,7 @@ int main()
 		bar.Draw(staticShader);
 
 		//Cortinas Escenario
+		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(123.0f, 7.0f, -115.0f));
 		model = glm::scale(model, glm::vec3(11.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -709,6 +873,7 @@ int main()
 		cortina.Draw(staticShader);
 
 		//Arcade
+		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(180.0f, 0.0f, -10.0f));
 		model = glm::scale(model, glm::vec3(10.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -743,7 +908,89 @@ int main()
 		staticShader.setMat4("model", model);
 		Arcade3.Draw(staticShader);
 
+		//Freddy
+		// -------------------------------------------------------------------------------------------------------------------------
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(40.0f, 0.0f, 50.0f));
+		model = glm::scale(model, glm::vec3(10.0));
+		staticShader.setMat4("model", model);
+		Freddy.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(47.0f, 34.5f, 48.0f));
+		model = glm::scale(model, glm::vec3(10.0));
+		model = glm::rotate(model, glm::radians(rotBrazoF), glm::vec3(0.0f, 0.0f, 1.0f));
+		staticShader.setMat4("model", model);
+		FreddyBrazo.Draw(staticShader);
+
+		//Eggman
+		// -------------------------------------------------------------------------------------------------------------------------
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(eggx, eggz, eggy));
+		model = glm::scale(model, glm::vec3(3.0));
+		model = glm::rotate(model, glm::radians(rotegg), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		Eggman.Draw(staticShader);
+
+		//Chica
+		// -------------------------------------------------------------------------------------------------------------------------
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -220.0f));
+		model = glm::scale(model, glm::vec3(0.3));
+		staticShader.setMat4("model", model);
+		Chica.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-4.5f, 17.0f, -218.5f));
+		model = glm::scale(model, glm::vec3(0.3));
+		model = glm::rotate(model, glm::radians(rotBrazoC), glm::vec3(1.0f, 0.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		ChicaBrazo.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-4.5f, poszpanque, -212.0f));
+		model = glm::scale(model, glm::vec3(0.025));
+		model = glm::rotate(model, glm::radians(rotpanque), glm::vec3(1.0f, 0.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		panque.Draw(staticShader);
+
+		//cheff
+		// -------------------------------------------------------------------------------------------------------------------------
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-180.0f, 0.0f, 0.0f));//(-180,0,0)
+		model = glm::scale(model, glm::vec3(14.0f));
+		staticShader.setMat4("model", model);
+		cheff.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-182.0f, 13.5f, 0.0f));//(-180,0,0)
+		model = glm::scale(model, glm::vec3(14.0f));
+		model = glm::rotate(model, glm::radians(rotcheff), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, glm::radians(105.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		cheffbd.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-178.0f, 13.5f, 0.0f));//(-180,0,0)
+		model = glm::scale(model, glm::vec3(14.0f));
+		model = glm::rotate(model, glm::radians(-1*rotcheff), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, glm::radians(75.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		cheffbd.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-180.0f, poszsar, 7.0f));//(-180,13.5,0)
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotsarten), glm::vec3(0.0f, 0.0f, 1.0f));
+		staticShader.setMat4("model", model);
+		sarten.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-180.0f, 11.2f, -70.0f));
+		model = glm::scale(model, glm::vec3(2.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		plato.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-180.0f, carnez + 13.5, carney));//(-180,13.5,12.0)
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		carne.Draw(staticShader);
+
+
 		//Pasto Diorama
+		// -------------------------------------------------------------------------------------------------------------------------
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, -13.25f, 0.0f));
 		model = glm::scale(model, glm::vec3(50.0f));
@@ -795,80 +1042,7 @@ void my_input(GLFWwindow *window, int key, int scancode, int action, int mode)
 		camera.ProcessKeyboard(LEFT, (float)deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, (float)deltaTime);
-	//To Configure Model
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
-		posZ++;
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-		posZ--;
-	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
-		posX--;
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-		posX++;
-	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-		rotRodIzq--;
-	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-		rotRodIzq++;
-	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-		giroMonito--;
-	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
-		giroMonito++;
-	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS )
-		lightPosition.x++;
-	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
-		lightPosition.x--;
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
-		lightPosition.x++;
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
-		lightPosition.x--;
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-		lightPosition.x++;
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-		lightPosition.x--;
-	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-		lightPosition.x++;
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-		lightPosition.x--;
-
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS && myColor01.x <= 1.0)
-		myColor01.x++;
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS && myColor01.x >= 0.0)
-		myColor01.x--;
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS && myColor01.y <= 1.0)
-		myColor01.y++;
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && myColor01.y >= 0.0)
-		myColor01.y--;
-	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS && myColor01.z <= 1.0)
-		myColor01.z++;
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && myColor01.z >= 0.0)
-		myColor01.z--;
-
-	//movimiento brazo
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && myColor01.z <= 1.0)
-		movBrazoDer++;
-	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS && myColor01.z >= 0.0)
-		movBrazoDer--;
-	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS && myColor01.z <= 1.0)
-		movBrzoIzq++;
-	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS && myColor01.z >= 0.0)
-		movBrzoIzq--;
-	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS && myColor01.z <= 1.0)
-		rotRodDer++;
-	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS && myColor01.z >= 0.0)
-		rotRodDer--;
-	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS && myColor01.z <= 1.0)
-		rotcabez++;
-	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS && myColor01.z >= 0.0)
-		rotcabez--;
-
-
-		//Car animation
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-		animacion ^= true;	//XOR
-
-	if (key == GLFW_KEY_R && action == GLFW_PRESS) {
-		animacion = false;
-		movAuto_z = 0.0f; animacion ^= true;
-	}
+	
 
 	//To play KeyFrame animation 
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
