@@ -1,0 +1,24 @@
+# Blender 3.5.1 MTL File: 'None'
+# www.blender.org
+
+newmtl sm0051_HangingLight01A_A_Mat
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 1
+map_Kd sm0051_HangingLight01A_ALBM.png
+map_Ks sm0051_HangingLight01A_ALBM.png
+map_d sm0051_hanginglight01a_alpa.png
+map_Bump -bm 0.020000 sm0051_HangingLight01A_NRMR.png
+
+newmtl sm0051_HangingLight01A_B_Mat
+Ns 32.000008
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd sm0051_HangingLight01A_ALBM.png
+map_Ks sm0051_HangingLight01A_ALBM.png
+map_Bump sm0051_HangingLight01A_NRMR.png
