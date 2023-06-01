@@ -1,0 +1,75 @@
+﻿  ProyectoFinalCG.cpp
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\include\shader_m.h(44,40): warning C4101: 'e': variable local sin referencia
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\include\modelAnim.h(104,44): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\include\modelAnim.h(520,24): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(157,9): warning C4477: 'printf' : la cadena de formato '%d' requiere un argumento de tipo 'int', pero el argumento variádico 1 tiene el tipo 'double'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(159,9): warning C4477: 'printf' : la cadena de formato '%d' requiere un argumento de tipo 'int', pero el argumento variádico 1 tiene el tipo 'double'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(161,9): warning C4477: 'printf' : la cadena de formato '%d' requiere un argumento de tipo 'int', pero el argumento variádico 1 tiene el tipo 'double'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(163,9): warning C4477: 'printf' : la cadena de formato '%d' requiere un argumento de tipo 'int', pero el argumento variádico 1 tiene el tipo 'double'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(197,18): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(198,18): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(204,18): warning C4305: '-=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(205,18): warning C4305: '-=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(210,18): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(229,12): warning C4566: el carácter representado por el nombre de carácter universal '\uFFFD' no se puede representar en la página de códigos actual (1252)
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(267,19): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(269,15): warning C4305: '-=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(293,19): warning C4305: '-=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(295,15): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(397,19): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(408,19): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(429,17): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(431,18): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(432,17): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(433,20): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(441,19): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(447,18): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(449,20): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(452,17): warning C4305: '-=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(459,18): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(461,20): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(467,19): warning C4305: '+=': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(933,51): warning C4305: 'argumento': truncamiento de 'double' a 'float'
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1220,39): warning C4305: 'argumento': truncamiento de 'double' a 'T'
+          with
+          [
+              T=float
+          ]
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1225,39): warning C4305: 'argumento': truncamiento de 'double' a 'T'
+          with
+          [
+              T=float
+          ]
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1231,39): warning C4305: 'argumento': truncamiento de 'double' a 'T'
+          with
+          [
+              T=float
+          ]
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1316,39): warning C4305: 'argumento': truncamiento de 'double' a 'T'
+          with
+          [
+              T=float
+          ]
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1467,11): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1468,11): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1472,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1473,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1475,10): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1476,10): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Practica01\ProyectoFinalCG.cpp(1484,28): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
+glfw3.lib(context.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(context.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(init.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(init.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(input.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(input.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(monitor.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(monitor.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(vulkan.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(vulkan.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(window.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(window.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(win32_init.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(win32_init.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(win32_joystick.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(win32_joystick.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(win32_monitor.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(win32_monitor.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(win32_time.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(win32_time.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(win32_thread.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(win32_thread.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(win32_window.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(win32_window.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(wgl_context.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(wgl_context.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(egl_context.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(egl_context.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+glfw3.lib(osmesa_context.obj) : warning LNK4099: no se encontró PDB '' con 'glfw3.lib(osmesa_context.obj)' o en ''; se vinculará el objeto sin tener en cuenta información de depuración
+  Practica01.vcxproj -> C:\Users\Karla\Desktop\Practicas Grafica\Practica01\Debug\Practica01.exe
