@@ -211,7 +211,7 @@ void animate(void)
 	//--------------------------------------------------------------------------------
 	//Animacion Sonic
 	/*En esta animacion se usa a sonic hecho bolita y tiene que recorrer una parte del mapa, en le 
-	caso 0 sonic avanza al incio de la rampa, en le caso 1 sonic recorre la rampa circular, en el
+	caso 0 sonic avanza al inicio de la rampa, en le caso 1 sonic recorre la rampa circular, en el
 	caso 2 sonic continua el camino restante, despues en los casoso 3,4 y 5realiza de forma 
 	inversa el recorrido, tambien se le dio una rotacion, para simular que esta girando mientras avanaza*/
 	rotsonic += 1.5f;
@@ -277,7 +277,7 @@ void animate(void)
 	//--------------------------------------------------------------------------------
 	//Animacion Saludo Freddy
 	/*Se busca darle una animacion de saludo, para ello se le da animacion al brazo realiando 
-	rotaciones en el brazo, en el caso 0 el brazosube por medio de una rotacion y en el 
+	rotaciones en el brazo, en el caso 0 el brazo sube por medioD de una rotacion y en el 
 	caso 1 el brazo deciende por emdio de otra rotacion*/
 	switch (animFreddy) {
 	case 0:
@@ -346,10 +346,10 @@ void animate(void)
 	}
 	//--------------------------------------------------------------------------------
 	//Animacio Chica
-	/*En esta animacion se busca qeu chica lanze un panque al aire y que de vueltas
+	/*En esta animacion se busca que chica lance un panque al aire y que de vueltas
 	a lo largo del recorrido, en el caso 0 el panque y el brazo se mueven al mismo 
 	tiempo, y empieza la rotacion del panque, en le caso 1 el panque se eleva y rota
-	y en el caso 2 	el pnque deciende con el brazo de chica mientras termina su 
+	y en el caso 2 	el panque deciende con el brazo de chica mientras termina su 
 	rotacion*/
 	switch (animChica) {
 	case 0:
@@ -377,7 +377,7 @@ void animate(void)
 	//--------------------------------------------------------------------------------
 	//Animacion Cheff
 	/*La animacion consiste en que el cheff lanza el sarten al aire con la carne,
-	y la misma vuela hsta un plato que hay sobre la mesa, en el caso 0 el cheff 
+	y la misma vuela hasta un plato que hay sobre la mesa, en el caso 0 el cheff 
 	lanza el sarten por medio de una rotacion en sus brazos, el sarten aumenta su
 	altura mientras tiene una pequeña rotacion, la carne tambien aumenta su altura
 	mientras realiza un trayectoria curva, en el caso 1 se hace una pequeña pausa
