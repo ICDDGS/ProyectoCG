@@ -1,0 +1,35 @@
+# Blender 3.5.1 MTL File: 'None'
+# www.blender.org
+
+newmtl StandMic00
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd StandMic00_alb.png
+map_d StandMic00_alb.png
+map_Bump -bm 0.300000 StandMic00_nml.png
+
+newmtl StandMic01
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd StandMic01_alb.png
+map_d StandMic01_alb.png
+map_Bump -bm 0.300000 StandMic01_nml.png
+
+newmtl StandMic02
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd StandMic02_alb.png
+map_d StandMic02_alb.png
+map_Bump -bm 0.300000 StandMic02_nml.png
