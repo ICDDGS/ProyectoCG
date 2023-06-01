@@ -1,8 +1,11 @@
 ﻿/*---------------------------------------------------------*/
 /* ----------------  Proyecto Final             -----------*/
 /*-----------------    2023-2   ---------------------------*/
-/*------ Alumno: Cruz Cedillo Daniel Alejandro-------------*/
+/*------ Cruz Cedillo Daniel Alejandro		  -------------*/
 /*------------- No. Cuenta: 316083298---------------*/
+/*------ Rueda Aguilar Karla Vanessa		  -------------*/
+/*------------- No. Cuenta: 315184945---------------*/
+#include <Windows.h>
 #include <Windows.h>
 
 #include <glad/glad.h>
@@ -44,8 +47,8 @@ GLFWmonitor *monitors;
 void getResolution(void);
 
 // camera
-Camera camera(glm::vec3(0.0f, 15.0f, 400.0f));//Posicion incial de la camara 
-float MovementSpeed = 0.5f;
+Camera camera(glm::vec3(0.0f, 15.0f, 350.0f));//Posicion incial de la camara 
+float MovementSpeed = 50.0f;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -109,42 +112,73 @@ float rotcheff=0.0f,
 	carneinc =1.5f;
 int animcheff = 0;
 
+//Bunny
+float	rot_bIzqB = 0.0f,
+rot_bDerB = 0.0f,
+rot_pIzqB = 0.0f,
+rot_pDerB = 0.0f;
+int animBunny = 0;
+float reproduciranimacion, habilitaranimacion,
+guardoFrame, reinicioFrame, ciclo, ciclo2, contador = 0;
+//PARA INPUT CON KEYFRAMES 
+void inputKeyframes(bool* keys);
 
-#define MAX_FRAMES 20  //cantidad de cuadros clave que se pueden guardar
-int i_max_steps = 60;
-int i_curr_steps = 0;
+// Keyframes
+float posX_globo = 0.0, posy_globo = 20.0, posz_globo = -100;
+float	movGlobo_x = 0.0f, movGlobo_y = 0.0f, movGlobo_z = 0.0f;
+float giroGlobo = 0;
+
+#define MAX_FRAMES 50
+int i_max_steps = 270;
+int i_curr_steps = 9;
+
 typedef struct _frame
 {
 	//Variables para GUARDAR Key Frames
-	
+	float movGlobo_x;		//Variable para PosicionX
+	float movGlobo_y;		//Variable para PosicionY
+	float movGlobo_z;		//Variable para PosicionZ
+	float movGlobo_xInc;		//Variable para IncrementoX
+	float movGlobo_yInc;		//Variable para IncrementoY
+	float movGlobo_zInc;		//Variable para IncrementoZ
+	float giroGlobo;
+	float giroGloboInc;
 }FRAME; //Estructura Frame
 
 FRAME KeyFrame[MAX_FRAMES];
-int FrameIndex = 0;//4;			//introducir número en caso de tener Key guardados
+int FrameIndex = 46;			//introducir datos
 bool play = false;
 int playIndex = 0;
 
 void saveFrame(void)
 {
-	//printf("frameindex %d\n", FrameIndex);
-
-	//Guarda como esta el personaje dentro de la estrucutura
-	std::cout << "Frame Index = " << FrameIndex << std::endl;
-
-	
-
+	printf("frameindex %d\n", FrameIndex);
+	KeyFrame[FrameIndex].movGlobo_x = movGlobo_x;
+	printf("KeyFrame[FrameIndex].X = Valor; %d\n", KeyFrame[FrameIndex].movGlobo_x);
+	KeyFrame[FrameIndex].movGlobo_y = movGlobo_y;
+	printf("KeyFrame[FrameIndex].Y = Valor; %d\n", KeyFrame[FrameIndex].movGlobo_y);
+	KeyFrame[FrameIndex].movGlobo_z = movGlobo_z;
+	printf("KeyFrame[FrameIndex].Z = Valor; %d\n", KeyFrame[FrameIndex].movGlobo_z);
+	KeyFrame[FrameIndex].giroGlobo = giroGlobo;
+	printf("KeyFrame[FrameIndex].giroGlobo = Valor; %d\n", KeyFrame[FrameIndex].giroGlobo);
 	FrameIndex++;
 }
 
 //Punto de incio para reproducir
 void resetElements(void)
 {
-
+	movGlobo_x = KeyFrame[0].movGlobo_x;
+	movGlobo_y = KeyFrame[0].movGlobo_y;
+	movGlobo_y = KeyFrame[0].movGlobo_z;
+	giroGlobo = KeyFrame[0].giroGlobo;
 }
 
 void interpolation(void)
 {
-
+	KeyFrame[playIndex].movGlobo_xInc = (KeyFrame[playIndex + 1].movGlobo_x - KeyFrame[playIndex].movGlobo_x) / i_max_steps;
+	KeyFrame[playIndex].movGlobo_yInc = (KeyFrame[playIndex + 1].movGlobo_y - KeyFrame[playIndex].movGlobo_y) / i_max_steps;
+	KeyFrame[playIndex].movGlobo_zInc = (KeyFrame[playIndex + 1].movGlobo_z - KeyFrame[playIndex].movGlobo_z) / i_max_steps;
+	KeyFrame[playIndex].giroGloboInc = (KeyFrame[playIndex + 1].giroGlobo - KeyFrame[playIndex].giroGlobo) / i_max_steps;
 }
 
 //-----------------------------------------------------------------------
@@ -187,24 +221,29 @@ void animate(void)
 		if (i_curr_steps >= i_max_steps) //end of animation between frames?
 		{
 			playIndex++;
+			printf("Frame [%d] reproducido \n", playIndex - 1);
 			if (playIndex > FrameIndex - 2)	//end of total animation?
 			{
-				std::cout << "Animation ended" << std::endl;
-				//printf("termina anim\n");
+				printf("Ultimo frame es [%d] \n", FrameIndex - 1);
+				//fprintf(guardarFrames,"FrameIndex [%d]" ,FrameIndex);
+				printf("Termina animaci�n\n");
 				playIndex = 0;
 				play = false;
 			}
 			else //Next frame interpolations
 			{
+				//printf("entro aqu�\n");
 				i_curr_steps = 0; //Reset counter
-								  //Interpolation
+				//Interpolation
 				interpolation();
 			}
 		}
 		else
 		{
-			//Draw animation
-
+			movGlobo_x += KeyFrame[playIndex].movGlobo_xInc;
+			movGlobo_y += KeyFrame[playIndex].movGlobo_yInc;
+			movGlobo_z += KeyFrame[playIndex].movGlobo_zInc;
+			giroGlobo += KeyFrame[playIndex].giroGloboInc;
 			i_curr_steps++;
 		}
 	}
@@ -527,52 +566,298 @@ int main()
 
 	// load models
 	// -----------
-	Model piso("resources/objects/ProyCG/piso/piso.obj");
+	Model piso("resources/objects/piso/piso.obj");
 	
 	//--------------------------------------------------------------------------------
 	//Modelos Proyecto
 	//-------------------------------------------------------------------------------
 	//Elementos sin animacion
 	//--------------------------------------------------------------------------------
-	Model restaurante("resources/objects/ProyCG/restaurante/rest.obj");
-	Model mesa("resources/objects/ProyCG/mesa/mesa.obj");
-	Model silla("resources/objects/ProyCG/silla/silla.obj");
-	Model pastel("resources/objects/ProyCG/pastel/pastel.obj");
-	Model micro("resources/objects/ProyCG/microfono/micro.obj");
-	Model globor("resources/objects/ProyCG/globos/globor.obj");
-	Model globop("resources/objects/ProyCG/globos/globop.obj");
-	Model globon("resources/objects/ProyCG/globos/globon.obj");
-	Model globodec("resources/objects/ProyCG/globos/globodec.obj");
-	Model cocina("resources/objects/ProyCG/cocina/cocina.obj");
-	Model bar("resources/objects/ProyCG/bar/bar.obj");
-	Model cortina("resources/objects/ProyCG/cortina/cortina.obj");
-	Model Arcade1("resources/objects/ProyCG/arcade/a1.obj");
-	Model Arcade2("resources/objects/ProyCG/arcade/a2.obj");
-	Model Arcade3("resources/objects/ProyCG/arcade/a3.obj");
+	Model restaurante("resources/objects/restaurante/rest.obj");
+	Model mesa("resources/objects/mesa/mesa.obj");
+	Model silla("resources/objects/silla/silla.obj");
+	Model pastel("resources/objects/pastel/pastel.obj");
+	Model micro("resources/objects/microfono/micro.obj");
+	Model globor("resources/objects/globos/globor.obj");
+	Model globop("resources/objects/globos/globop.obj");
+	Model globon("resources/objects/globos/globon.obj");
+	Model globodec("resources/objects/globos/globodec.obj");
+	Model cocina("resources/objects/cocina/cocina.obj");
+	Model bar("resources/objects/bar/bar.obj");
+	Model cortina("resources/objects/cortina/cortina.obj");
+	Model Arcade1("resources/objects/arcade/a1.obj");
+	Model Arcade2("resources/objects/arcade/a2.obj");
+	Model Arcade3("resources/objects/arcade/a3.obj");
 	//--------------------------------------------------------------------------------
 	//Modelos con animacion
 	//--------------------------------------------------------------------------------
 	//Sonic
-	Model mapa("resources/objects/ProyCG/sonic/mapa.obj");
-	Model sonic("resources/objects/ProyCG/sonic/sonic.obj");
+	Model mapa("resources/objects/sonic/mapa.obj");
+	Model sonic("resources/objects/sonic/sonic.obj");
 	//ring
-	Model ring("resources/objects/ProyCG/ring/ring.obj");
+	Model ring("resources/objects/ring/ring.obj");
 	//EggMAn
-	Model Eggman("resources/objects/ProyCG/Eggman/Eggman.obj");
+	Model Eggman("resources/objects/Eggman/Eggman.obj");
 	//Freddy
-	Model Freddy("resources/objects/ProyCG/Freddy/Freddy.obj");
-	Model FreddyBrazo("resources/objects/ProyCG/Freddy/FreddyBrazo.obj");
+	Model Freddy("resources/objects/Freddy/Freddy.obj");
+	Model FreddyBrazo("resources/objects/Freddy/FreddyBrazo.obj");
 	//Chica
-	Model Chica("resources/objects/ProyCG/Chica/chica.obj");
-	Model ChicaBrazo("resources/objects/ProyCG/Chica/chicabrazo.obj");
-	Model panque("resources/objects/ProyCG/Chica/panque.obj");
+	Model Chica("resources/objects/Chica/chica.obj");
+	Model ChicaBrazo("resources/objects/Chica/chicabrazo.obj");
+	Model panque("resources/objects/Chica/panque.obj");
 	//Cheff
-	Model cheff("resources/objects/ProyCG/cocinero/cheff.obj");
-	Model cheffbd("resources/objects/ProyCG/cocinero/cheffbd.obj");
-	Model cheffbi("resources/objects/ProyCG/cocinero/cheffbi.obj");
-	Model sarten("resources/objects/ProyCG/cocinero/sarten.obj");
-	Model carne("resources/objects/ProyCG/cocinero/carne.obj");
-	Model plato("resources/objects/ProyCG/cocinero/plato.obj");
+	Model cheff("resources/objects/cocinero/cheff.obj");
+	Model cheffbd("resources/objects/cocinero/cheffbd.obj");
+	Model cheffbi("resources/objects/cocinero/cheffbi.obj");
+	Model sarten("resources/objects/cocinero/sarten.obj");
+	Model carne("resources/objects/cocinero/carne.obj");
+	Model plato("resources/objects/cocinero/plato.obj");
+
+	//Bunny
+	Model Bunny("resources/objects/Bunny/cuerpoBunny.obj");
+	Model BunnyBrazoIzq("resources/objects/Bunny/bIzqBunny.obj");
+	Model BunnyBrazoDer("resources/objects/Bunny/bDerBunny.obj");
+	Model BunnyPieIzq("resources/objects/Bunny/pIzqBunny.obj");
+	Model BunnyPieDer("resources/objects/Bunny/pDerBunny.obj");
+	//Globo
+	Model globo("resources/objects/globos/globodec.obj");
+
+	//para keyframes
+	animate();
+	//Inicialización de KeyFrames
+
+	KeyFrame[0].movGlobo_x = 0.0f;
+	KeyFrame[0].movGlobo_y = 0.0f;
+	KeyFrame[0].movGlobo_z = 0.0f;
+	KeyFrame[0].giroGlobo = 0;
+
+
+	KeyFrame[1].movGlobo_x = 0.0f;
+	KeyFrame[1].movGlobo_y = 10.0f;
+	KeyFrame[1].movGlobo_z = 0.0f;
+	KeyFrame[1].giroGlobo = 0;
+
+
+	KeyFrame[2].movGlobo_x = 5.0f;
+	KeyFrame[2].movGlobo_y = 6.0f;
+	KeyFrame[2].movGlobo_z = 0.0f;
+	KeyFrame[2].giroGlobo = 0;
+
+
+	KeyFrame[3].movGlobo_x = 7.0f;
+	KeyFrame[3].movGlobo_y = 10.0f;
+	KeyFrame[3].movGlobo_z = 0.0f;
+	KeyFrame[3].giroGlobo = 0;
+
+	KeyFrame[4].movGlobo_x = 9.0f;
+	KeyFrame[4].movGlobo_y = 6.0f;
+	KeyFrame[4].movGlobo_z = 0.0f;
+	KeyFrame[4].giroGlobo = 0.0f;
+
+	KeyFrame[5].movGlobo_x = 11.0f;
+	KeyFrame[5].movGlobo_y = 10.0f;
+	KeyFrame[5].movGlobo_z = 0.0f;
+	KeyFrame[5].giroGlobo = 0;
+
+	KeyFrame[6].movGlobo_x = 13.0f;
+	KeyFrame[6].movGlobo_y = 6.0f;
+	KeyFrame[6].movGlobo_z = 0.0f;
+	KeyFrame[6].giroGlobo = 0;
+
+	KeyFrame[7].movGlobo_x = 15.0f;
+	KeyFrame[7].movGlobo_y = 10.0f;
+	KeyFrame[7].movGlobo_z = 0.0f;
+	KeyFrame[7].giroGlobo = 0;
+
+	KeyFrame[8].movGlobo_x = 17.0f;
+	KeyFrame[8].movGlobo_y = 6.0f;
+	KeyFrame[8].movGlobo_z = 0.0f;
+	KeyFrame[8].giroGlobo = 90;
+
+	KeyFrame[9].movGlobo_x = 19.0f;
+	KeyFrame[9].movGlobo_y = 10.0f;
+	KeyFrame[9].movGlobo_z = -4.0f;
+	KeyFrame[9].giroGlobo = 90;
+
+	KeyFrame[10].movGlobo_x = 19.0f;
+	KeyFrame[10].movGlobo_y = 6.0f;
+	KeyFrame[10].movGlobo_z = -8.0f;
+	KeyFrame[10].giroGlobo = 90;
+
+	KeyFrame[11].movGlobo_x = 19.0f;
+	KeyFrame[11].movGlobo_y = 10.0f;
+	KeyFrame[11].movGlobo_z = -12.0f;
+	KeyFrame[11].giroGlobo = 90;
+
+	KeyFrame[12].movGlobo_x = 19.0f;
+	KeyFrame[12].movGlobo_y = 6.0f;
+	KeyFrame[12].movGlobo_z = -16.0f;
+	KeyFrame[12].giroGlobo = 90;
+
+	KeyFrame[13].movGlobo_x = 19.0f;
+	KeyFrame[13].movGlobo_y = 10.0f;
+	KeyFrame[13].movGlobo_z = -20.0f;
+	KeyFrame[13].giroGlobo = 90;
+
+	KeyFrame[14].movGlobo_x = 19.0f;
+	KeyFrame[14].movGlobo_y = 6.0f;
+	KeyFrame[14].movGlobo_z = -24.0f;
+	KeyFrame[14].giroGlobo = 90;
+
+	KeyFrame[15].movGlobo_x = 19.0f;
+	KeyFrame[15].movGlobo_y = 10.0f;
+	KeyFrame[15].movGlobo_z = -28.0f;
+	KeyFrame[15].giroGlobo = 90;
+
+	KeyFrame[16].movGlobo_x = 19.0f;
+	KeyFrame[16].movGlobo_y = 6.0f;
+	KeyFrame[16].movGlobo_z = -32.0f;
+	KeyFrame[16].giroGlobo = 90;
+
+	KeyFrame[17].movGlobo_x = 19.0f;
+	KeyFrame[17].movGlobo_y = 10.0f;
+	KeyFrame[17].movGlobo_z = -36.0f;
+	KeyFrame[17].giroGlobo = 90;
+
+	KeyFrame[18].movGlobo_x = 19.0f;
+	KeyFrame[18].movGlobo_y = 6.0f;
+	KeyFrame[18].movGlobo_z = -40.0f;
+	KeyFrame[18].giroGlobo = 90;
+
+	KeyFrame[19].movGlobo_x = 19.0f;
+	KeyFrame[19].movGlobo_y = 5.0f;
+	KeyFrame[19].movGlobo_z = -44.0f;
+	KeyFrame[19].giroGlobo = 90;
+
+	KeyFrame[20].movGlobo_x = 19.0f;
+	KeyFrame[20].movGlobo_y = 4.0f;
+	KeyFrame[20].movGlobo_z = -48.0f;
+	KeyFrame[20].giroGlobo = 90;
+
+	KeyFrame[21].movGlobo_x = 19.0f;
+	KeyFrame[21].movGlobo_y = 3.0f;
+	KeyFrame[21].movGlobo_z = -52.0f;
+	KeyFrame[21].giroGlobo = 90;
+
+	KeyFrame[22].movGlobo_x = 19.0f;
+	KeyFrame[22].movGlobo_y = 2.0f;
+	KeyFrame[22].movGlobo_z = -56.0f;
+	KeyFrame[22].giroGlobo = 90;
+
+	KeyFrame[23].movGlobo_x = 19.0f;
+	KeyFrame[23].movGlobo_y = 1.0f;
+	KeyFrame[23].movGlobo_z = -60.0f;
+	KeyFrame[23].giroGlobo = 90;
+
+	KeyFrame[24].movGlobo_x = 19.0f;
+	KeyFrame[24].movGlobo_y = 0.0f;
+	KeyFrame[24].movGlobo_z = -64.0f;
+	KeyFrame[24].giroGlobo = 90;
+
+	KeyFrame[25].movGlobo_x = 19.0f;
+	KeyFrame[25].movGlobo_y = 0.0f;
+	KeyFrame[25].movGlobo_z = -68.0f;
+	KeyFrame[25].giroGlobo = 90;
+	
+	KeyFrame[26].movGlobo_x = 19.0f;
+	KeyFrame[26].movGlobo_y = 0.0f;
+	KeyFrame[26].movGlobo_z = -68.0f;
+	KeyFrame[26].giroGlobo = 180;
+	
+	KeyFrame[27].movGlobo_x = 15.0f;
+	KeyFrame[27].movGlobo_y = 1.0f;
+	KeyFrame[27].movGlobo_z = -68.0f;
+	KeyFrame[27].giroGlobo = 180;
+
+	KeyFrame[28].movGlobo_x = 11.0f;
+	KeyFrame[28].movGlobo_y = 2.f;
+	KeyFrame[28].movGlobo_z = -68.0f;
+	KeyFrame[28].giroGlobo = 180;
+
+	KeyFrame[29].movGlobo_x = 7.0f;
+	KeyFrame[29].movGlobo_y = 3.0f;
+	KeyFrame[29].movGlobo_z = -68.0f;
+	KeyFrame[29].giroGlobo = 180;
+
+	KeyFrame[30].movGlobo_x = 3.0f;
+	KeyFrame[30].movGlobo_y = 4.0f;
+	KeyFrame[30].movGlobo_z = -68.0f;
+	KeyFrame[30].giroGlobo = 180;
+
+	KeyFrame[31].movGlobo_x = -1.0f;
+	KeyFrame[31].movGlobo_y = 5.0f;
+	KeyFrame[31].movGlobo_z = -68.0f;
+	KeyFrame[31].giroGlobo = 180;
+
+	KeyFrame[32].movGlobo_x = -5.0f;
+	KeyFrame[32].movGlobo_y = 6.0f;
+	KeyFrame[32].movGlobo_z = -68.0f;
+	KeyFrame[32].giroGlobo = 180;
+	
+	KeyFrame[33].movGlobo_x = -5.0f;
+	KeyFrame[33].movGlobo_y = 6.0f;
+	KeyFrame[33].movGlobo_z = -68.0f;
+	KeyFrame[33].giroGlobo = 270;
+	
+	KeyFrame[34].movGlobo_x = -5.0f;
+	KeyFrame[34].movGlobo_y = 10.0f;
+	KeyFrame[34].movGlobo_z = -60.0f;
+	KeyFrame[34].giroGlobo = 270;
+
+	KeyFrame[35].movGlobo_x = -5.0f;
+	KeyFrame[35].movGlobo_y = 6.0f;
+	KeyFrame[35].movGlobo_z = -52.0f;
+	KeyFrame[35].giroGlobo = 270;
+
+	KeyFrame[36].movGlobo_x = -5.0f;
+	KeyFrame[36].movGlobo_y = 10.0f;
+	KeyFrame[36].movGlobo_z = -44.0f;
+	KeyFrame[36].giroGlobo = 270;
+
+	KeyFrame[37].movGlobo_x = -5.0f;
+	KeyFrame[37].movGlobo_y = 6.0f;
+	KeyFrame[37].movGlobo_z = -36.0f;
+	KeyFrame[37].giroGlobo = 270;
+
+	KeyFrame[38].movGlobo_x = -5.0f;
+	KeyFrame[38].movGlobo_y = 10.0f;
+	KeyFrame[38].movGlobo_z = -28.0f;
+	KeyFrame[38].giroGlobo = 270;
+
+	KeyFrame[39].movGlobo_x = -5.0f;
+	KeyFrame[39].movGlobo_y = 6.0f;
+	KeyFrame[39].movGlobo_z = -20.0f;
+	KeyFrame[39].giroGlobo = 270;
+
+	KeyFrame[40].movGlobo_x = -5.0f;
+	KeyFrame[40].movGlobo_y = 10.0f;
+	KeyFrame[40].movGlobo_z = -12.0f;
+	KeyFrame[40].giroGlobo = 270;
+
+	KeyFrame[41].movGlobo_x = -5.0f;
+	KeyFrame[41].movGlobo_y = 6.0f;
+	KeyFrame[41].movGlobo_z = -4.0f;
+	KeyFrame[41].giroGlobo = 270;
+
+	KeyFrame[42].movGlobo_x = -5.0f;
+	KeyFrame[42].movGlobo_y = 5.0f;
+	KeyFrame[42].movGlobo_z = 0.0f;
+	KeyFrame[42].giroGlobo = 270;
+	
+	KeyFrame[43].movGlobo_x = -5.0f;
+	KeyFrame[43].movGlobo_y = 5.0f;
+	KeyFrame[43].movGlobo_z = 0.0f;
+	KeyFrame[43].giroGlobo = 360;
+	
+	KeyFrame[44].movGlobo_x = -5.0f;
+	KeyFrame[44].movGlobo_y = 0.0f;
+	KeyFrame[44].movGlobo_z = 0.0f;
+	KeyFrame[44].giroGlobo = 360;
+	
+	KeyFrame[45].movGlobo_x = 0.0f;
+	KeyFrame[45].movGlobo_y = 0.0f;
+	KeyFrame[45].movGlobo_z = 0.0f;
+	KeyFrame[45].giroGlobo = 360;
 
 
 	//Inicialización de KeyFrames
@@ -988,6 +1273,50 @@ int main()
 		staticShader.setMat4("model", model);
 		carne.Draw(staticShader);
 
+		//Bunny
+		// -------------------------------------------------------------------------------------------------------------------------
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-85.0f, -0.5f, -10.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(7.0));
+		staticShader.setMat4("model", model);
+		Bunny.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-85.0f, -0.5f, -10.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(7.0));
+		model = glm::rotate(model, glm::radians(rot_bIzqB), glm::vec3(1.0f, 0.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		BunnyBrazoIzq.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-85.0f, -0.5f, -10.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(7.0));
+		model = glm::rotate(model, glm::radians(rot_bDerB), glm::vec3(1.0f, 0.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		BunnyBrazoDer.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-85.0f, -0.5f, -10.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(7.0));
+		model = glm::rotate(model, glm::radians(rot_pIzqB), glm::vec3(1.0f, 0.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		BunnyPieIzq.Draw(staticShader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-85.0f, -0.5f, -10.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(7.0));
+		model = glm::rotate(model, glm::radians(rot_pDerB), glm::vec3(1.0f, 0.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		BunnyPieDer.Draw(staticShader);
+
+		//Globo
+		// -------------------------------------------------------------------------------------------------------------------------
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(posX_globo + movGlobo_x, posy_globo + movGlobo_y, posz_globo));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.3));
+		model = glm::rotate(model, glm::radians(giroGlobo), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setMat4("model", model);
+		globo.Draw(staticShader);
 
 		//Pasto Diorama
 		// -------------------------------------------------------------------------------------------------------------------------
@@ -1047,30 +1376,75 @@ void my_input(GLFWwindow *window, int key, int scancode, int action, int mode)
 	//To play KeyFrame animation 
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 	{
-		if (play == false && (FrameIndex > 1))
+		if (reproduciranimacion < 1)
 		{
-			std::cout << "Play animation" << std::endl;
-			resetElements();
-			//First Interpolation				
-			interpolation();
+			if (play == false && (FrameIndex > 1))
+			{
+				resetElements();
+				//First Interpolation				
+				interpolation();
+				play = true;
+				playIndex = 0;
+				i_curr_steps = 0;
+				reproduciranimacion++;
+				printf("\n presiona 0 para habilitar reproducir de nuevo la animación'\n");
+				habilitaranimacion = 0;
 
-			play = true;
-			playIndex = 0;
-			i_curr_steps = 0;
-		}
-		else
-		{
-			play = false;
-			std::cout << "Not enough Key Frames" << std::endl;
+			}
+			else
+			{
+				play = false;
+			}
 		}
 	}
 
-	//To Save a KeyFrame
+	if (key == GLFW_KEY_0 && action == GLFW_PRESS)
+	{
+		if (habilitaranimacion < 1)
+		{
+			reproduciranimacion = 0;
+		}
+	}
+
 	if (key == GLFW_KEY_L && action == GLFW_PRESS)
 	{
-		if (FrameIndex < MAX_FRAMES)
+		if (guardoFrame < 1)
 		{
 			saveFrame();
+			printf("movGlobo_x es: %f\n", movGlobo_x);
+			//printf("movGlobo_y es: %f\n", movGlobo_y);
+			printf(" \npresiona P para habilitar guardar otro frame'\n");
+			guardoFrame++;
+			reinicioFrame = 0;
+		}
+	}
+	if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+	{
+		if (reinicioFrame < 1)
+		{
+			guardoFrame = 0;
+		}
+	}
+
+
+	if (key == GLFW_KEY_K && action == GLFW_PRESS)
+	{
+		if (ciclo < 1)
+		{
+			//printf("movGlobo_x es: %f\n", movGlobo_x);
+			movGlobo_x += 1.0f;
+			printf("\n movGlobo_x es: %f\n", movGlobo_x);
+			ciclo++;
+			ciclo2 = 0;
+			printf("\n reinicia con 2\n");
+		}
+
+	}
+	if (key == GLFW_KEY_J && action == GLFW_PRESS)
+	{
+		if (ciclo2 < 1)
+		{
+			ciclo = 0;
 		}
 	}
 }
